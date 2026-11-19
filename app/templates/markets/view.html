@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "macros.html" import fmt_date, fmt_datetime, delete_modal %}
+
+{% block title %}{{ market.name }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('markets.index') }}">Markets</a> / {{ market.name }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>🏪 {{ market.name }}</h1>
+    <p class="subtitle"><span class="badge badge-teal">{{ market.location }}</span></p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-primary" href="{{ url_for('markets.edit', id=market._id) }}">✏️ Edit</a>
+    <form id="del-form" method="POST" action="{{ url_for('markets.delete', id=market._id) }}" style="display:none"></form>
+    <button type="button" class="btn btn-danger" onclick="openDeleteModal('del-form','{{ market.name }}')">🗑 Delete</button>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+  <div class="card-header">Market Details</div>
+  <div class="card-body">
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Name</div><div class="detail-value">{{ market.name }}</div></div>
+      <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">{{ market.location }}</div></div>
+      <div class="detail-item" style="grid-column:span 2">
+        <div class="detail-label">Description</div>
+        <div class="detail-value">{{ market.description or '—' }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    Recent Price Listings at this Market
+    <a class="btn btn-sm btn-primary" href="{{ url_for('price_listings.new') }}">+ Add Listing</a>
+  </div>
+  <div class="table-wrap">
+    {% if listings %}
+    <table>
+      <thead><tr><th>Product</th><th>Price</th><th>Unit</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for l in listings %}
+        <tr>
+          <td>{{ l.product }}</td>
+          <td class="price-value">UGX {{ "{:,.0f}".format(l.price) }}</td>
+          <td><span class="badge badge-gray">{{ l.unit }}</span></td>
+          <td>{{ fmt_date(l.listing_date) }}</td>
+          <td><a class="btn btn-xs btn-outline" href="{{ url_for('price_listings.view', id=l._id) }}">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">💰</div>
+      <h3>No listings for this market</h3>
+      <p><a href="{{ url_for('price_listings.new') }}">Add a price listing</a></p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{{ delete_modal() }}
+{% endblock %}

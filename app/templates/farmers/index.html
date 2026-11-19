@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "macros.html" import pagination_widget, delete_modal, fmt_date %}
+
+{% block title %}Farmers{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('main.index') }}">Home</a> / Farmers{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>🧑‍🌾 Farmers</h1>
+    <p class="subtitle">{{ total }} farmer{{ 's' if total != 1 }} found</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('farmers.new') }}">+ Add Farmer</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="GET" class="toolbar" style="width:100%;margin:0;padding:0;border:none;background:none;">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ search }}" placeholder="Search by name, contact or location…" />
+      </div>
+      <button type="submit" class="btn btn-outline btn-sm">Search</button>
+      {% if search %}<a class="btn btn-outline btn-sm" href="{{ url_for('farmers.index') }}">Clear</a>{% endif %}
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    {% if farmers %}
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="name"><a href="#">Name</a></th>
+          <th>Contact</th>
+          <th data-sort="location"><a href="#">Location</a></th>
+          <th data-sort="created_at"><a href="#">Joined</a></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in farmers %}
+        <tr>
+          <td><a href="{{ url_for('farmers.view', id=f._id) }}" style="font-weight:600">{{ f.name }}</a></td>
+          <td>{{ f.contact }}</td>
+          <td><span class="badge badge-green">{{ f.location }}</span></td>
+          <td>{{ fmt_date(f.created_at) }}</td>
+          <td class="td-actions">
+            <a class="btn btn-xs btn-outline" href="{{ url_for('farmers.view', id=f._id) }}">View</a>
+            <a class="btn btn-xs btn-primary" href="{{ url_for('farmers.edit', id=f._id) }}">Edit</a>
+            <form id="del-{{ f._id }}" method="POST" action="{{ url_for('farmers.delete', id=f._id) }}" style="display:none"></form>
+            <button type="button" class="btn btn-xs btn-danger"
+              onclick="openDeleteModal('del-{{ f._id }}','{{ f.name }}')">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🧑‍🌾</div>
+      <h3>No farmers found</h3>
+      <p>{% if search %}Try a different term or <a href="{{ url_for('farmers.index') }}">clear</a>.{% else %}<a href="{{ url_for('farmers.new') }}">Add the first farmer</a>.{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+  {{ pagination_widget(pagination, 'farmers.index', search, sort) }}
+</div>
+{{ delete_modal() }}
+{% endblock %}

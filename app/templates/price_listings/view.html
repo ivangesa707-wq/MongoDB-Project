@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "macros.html" import fmt_date, fmt_datetime, delete_modal %}
+
+{% block title %}{{ listing.product }} — Price Listing{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('price_listings.index') }}">Price Listings</a> / {{ listing.product }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>💰 {{ listing.product }}</h1>
+    <p class="subtitle">Price Listing Detail</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-primary" href="{{ url_for('price_listings.edit', id=listing._id) }}">✏️ Edit</a>
+    <form id="del-form" method="POST" action="{{ url_for('price_listings.delete', id=listing._id) }}" style="display:none"></form>
+    <button type="button" class="btn btn-danger" onclick="openDeleteModal('del-form','{{ listing.product }}')">🗑 Delete</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Listing Details</div>
+  <div class="card-body">
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Product / Crop</div>
+        <div class="detail-value" style="font-size:1.1rem;font-weight:700">{{ listing.product }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Price</div>
+        <div class="detail-value price-value" style="font-size:1.3rem">
+          UGX {{ "{:,.0f}".format(listing.price) }} / {{ listing.unit }}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Market</div>
+        <div class="detail-value">
+          {% if listing.get('market') %}
+            <a href="{{ url_for('markets.view', id=listing.market._id) }}">{{ listing.market.name }}</a>
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Farmer</div>
+        <div class="detail-value">
+          {% if listing.get('farmer') %}
+            <a href="{{ url_for('farmers.view', id=listing.farmer._id) }}">{{ listing.farmer.name }}</a>
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Unit</div>
+        <div class="detail-value"><span class="badge badge-gray">{{ listing.unit }}</span></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Listing Date</div>
+        <div class="detail-value">{{ fmt_date(listing.listing_date) }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Created At</div>
+        <div class="detail-value">{{ fmt_datetime(listing.created_at) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ delete_modal() }}
+{% endblock %}

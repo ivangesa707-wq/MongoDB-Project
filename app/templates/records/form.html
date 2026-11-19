@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'New Record' if action == 'new' else 'Edit Record' }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('records.index') }}">Records</a> /
+  {{ 'New' if action == 'new' else 'Edit' }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ '📋 New Record' if action == 'new' else '✏️ Edit Record' }}</h1>
+</div>
+
+<div class="card" style="max-width:720px">
+  <div class="card-body">
+    <form method="POST">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Transaction Type <span class="required">*</span></label>
+          <select class="form-control" name="transaction_type" required>
+            <option value="">— Select type —</option>
+            {% for t in transaction_types %}
+            <option value="{{ t }}" {{ 'selected' if data.get('transaction_type') == t }}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date <span class="required">*</span></label>
+          <input class="form-control" type="date" name="date"
+                 value="{{ data.get('date', '') }}" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Buyer</label>
+          <select class="form-control" name="buyer_id">
+            <option value="">— Select buyer —</option>
+            {% for b in buyers %}
+            <option value="{{ b._id }}" {{ 'selected' if data.get('buyer_id') == b._id|string }}>{{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Farmer</label>
+          <select class="form-control" name="farmer_id">
+            <option value="">— Select farmer —</option>
+            {% for f in farmers %}
+            <option value="{{ f._id }}" {{ 'selected' if data.get('farmer_id') == f._id|string }}>{{ f.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product <span class="required">*</span></label>
+          <input class="form-control" type="text" name="product"
+                 value="{{ data.get('product', '') }}" placeholder="e.g. Maize (100kg bags)" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Market</label>
+          <select class="form-control" name="market_id">
+            <option value="">— Select market —</option>
+            {% for m in markets %}
+            <option value="{{ m._id }}" {{ 'selected' if data.get('market_id') == m._id|string }}>{{ m.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Quantity <span class="required">*</span></label>
+          <input class="form-control" type="number" name="quantity" step="0.01" min="0.01"
+                 value="{{ data.get('quantity', '') }}" placeholder="e.g. 10" required />
+          <span class="form-hint">Number of units, bags, kg, etc.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit Price (UGX) <span class="required">*</span></label>
+          <input class="form-control" type="number" name="price" step="0.01" min="0"
+                 value="{{ data.get('price', '') }}" placeholder="e.g. 2500" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" name="notes" placeholder="Optional notes or remarks…">{{ data.get('notes', '') }}</textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {{ 'Save Record' if action == 'new' else 'Update Record' }}
+        </button>
+        <a class="btn btn-outline" href="{{ url_for('records.index') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

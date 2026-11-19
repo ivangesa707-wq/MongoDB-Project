@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "macros.html" import pagination_widget, delete_modal, fmt_date %}
+
+{% block title %}Markets{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('main.index') }}">Home</a> / Markets{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>🏪 Markets</h1>
+    <p class="subtitle">{{ total }} market{{ 's' if total != 1 }} found</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('markets.new') }}">+ Add Market</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="GET" class="toolbar" style="width:100%;margin:0;padding:0;border:none;background:none;">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ search }}" placeholder="Search by name, location or description…" />
+      </div>
+      <button type="submit" class="btn btn-outline btn-sm">Search</button>
+      {% if search %}<a class="btn btn-outline btn-sm" href="{{ url_for('markets.index') }}">Clear</a>{% endif %}
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    {% if markets %}
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="name"><a href="#">Market Name</a></th>
+          <th data-sort="location"><a href="#">Location</a></th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in markets %}
+        <tr>
+          <td><a href="{{ url_for('markets.view', id=m._id) }}" style="font-weight:600">{{ m.name }}</a></td>
+          <td><span class="badge badge-teal">{{ m.location }}</span></td>
+          <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            {{ m.description or '—' }}</td>
+          <td class="td-actions">
+            <a class="btn btn-xs btn-outline" href="{{ url_for('markets.view', id=m._id) }}">View</a>
+            <a class="btn btn-xs btn-primary" href="{{ url_for('markets.edit', id=m._id) }}">Edit</a>
+            <form id="del-{{ m._id }}" method="POST" action="{{ url_for('markets.delete', id=m._id) }}" style="display:none"></form>
+            <button type="button" class="btn btn-xs btn-danger"
+              onclick="openDeleteModal('del-{{ m._id }}','{{ m.name }}')">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🏪</div>
+      <h3>No markets found</h3>
+      <p>{% if search %}<a href="{{ url_for('markets.index') }}">Clear filter</a>{% else %}<a href="{{ url_for('markets.new') }}">Add the first market</a>{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+  {{ pagination_widget(pagination, 'markets.index', search, sort) }}
+</div>
+{{ delete_modal() }}
+{% endblock %}

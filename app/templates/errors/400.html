@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}400 — Bad Request{% endblock %}
+{% block content %}
+<div class="empty-state" style="margin-top:80px">
+  <div class="empty-state-icon">❌</div>
+  <h3 style="font-size:2rem;margin-bottom:8px">400</h3>
+  <h3>Bad Request</h3>
+  <p>The request could not be understood. Please check your input and try again.</p>
+  <a class="btn btn-primary" href="{{ url_for('main.index') }}" style="margin-top:16px">Go to Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}500 — Server Error{% endblock %}
+{% block content %}
+<div class="empty-state" style="margin-top:80px">
+  <div class="empty-state-icon">⚠️</div>
+  <h3 style="font-size:2rem;margin-bottom:8px">500</h3>
+  <h3>Internal Server Error</h3>
+  <p>Something went wrong on our end. Please try again or contact support.</p>
+  <a class="btn btn-primary" href="{{ url_for('main.index') }}" style="margin-top:16px">Go to Dashboard</a>
+</div>
+{% endblock %}

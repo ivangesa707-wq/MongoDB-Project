@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% from "macros.html" import fmt_date, fmt_datetime, type_badge, delete_modal %}
+
+{% block title %}Record — {{ record.product }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('records.index') }}">Records</a> / {{ record.product }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>📋 {{ record.product }}</h1>
+    <p class="subtitle">{{ type_badge(record.transaction_type) }}</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-primary" href="{{ url_for('records.edit', id=record._id) }}">✏️ Edit</a>
+    <form id="del-form" method="POST" action="{{ url_for('records.delete', id=record._id) }}" style="display:none"></form>
+    <button type="button" class="btn btn-danger" onclick="openDeleteModal('del-form','this record')">🗑 Delete</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Transaction Details</div>
+  <div class="card-body">
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Transaction Type</div>
+        <div class="detail-value">{{ type_badge(record.transaction_type) }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Date</div>
+        <div class="detail-value">{{ fmt_date(record.date) }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Product</div>
+        <div class="detail-value" style="font-weight:600">{{ record.product }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Market</div>
+        <div class="detail-value">
+          {% if record.get('market') %}
+            <a href="{{ url_for('markets.view', id=record.market._id) }}">{{ record.market.name }}</a>
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Buyer</div>
+        <div class="detail-value">
+          {% if record.get('buyer') %}
+            <a href="{{ url_for('buyers.view', id=record.buyer._id) }}">{{ record.buyer.name }}</a>
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Farmer</div>
+        <div class="detail-value">
+          {% if record.get('farmer') %}
+            <a href="{{ url_for('farmers.view', id=record.farmer._id) }}">{{ record.farmer.name }}</a>
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Quantity</div>
+        <div class="detail-value">{{ record.quantity }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Unit Price</div>
+        <div class="detail-value">UGX {{ "{:,.0f}".format(record.price) }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Total Value</div>
+        <div class="detail-value price-value" style="font-size:1.2rem">
+          UGX {{ "{:,.0f}".format(record.price * record.quantity) }}
+        </div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Recorded At</div>
+        <div class="detail-value">{{ fmt_datetime(record.created_at) }}</div>
+      </div>
+    </div>
+    {% if record.get('notes') %}
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--clr-border)">
+      <div class="detail-label" style="margin-bottom:6px">Notes</div>
+      <p style="font-size:.9rem;line-height:1.6">{{ record.notes }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{{ delete_modal() }}
+{% endblock %}

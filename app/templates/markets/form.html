@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'New Market' if action == 'new' else 'Edit Market' }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('markets.index') }}">Markets</a> /
+  {{ 'New' if action == 'new' else 'Edit' }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ '🏪 New Market' if action == 'new' else '✏️ Edit Market' }}</h1>
+</div>
+
+<div class="card form-card">
+  <div class="card-body">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Market Name <span class="required">*</span></label>
+        <input class="form-control" type="text" name="name"
+               value="{{ data.get('name', '') }}" placeholder="e.g. Owino Market" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location <span class="required">*</span></label>
+        <input class="form-control" type="text" name="location"
+               value="{{ data.get('location', '') }}" placeholder="e.g. Kampala Central" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" name="description"
+                  placeholder="Brief description of the market…">{{ data.get('description', '') }}</textarea>
+        <span class="form-hint">Optional: trading days, speciality crops, size, etc.</span>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {{ 'Save Market' if action == 'new' else 'Update Market' }}
+        </button>
+        <a class="btn btn-outline" href="{{ url_for('markets.index') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

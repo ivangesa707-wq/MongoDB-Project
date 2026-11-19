@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "macros.html" import pagination_widget, search_bar, delete_modal, fmt_date %}
+
+{% block title %}Buyers{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('main.index') }}">Home</a> / Buyers{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>🛒 Buyers</h1>
+    <p class="subtitle">{{ total }} buyer{{ 's' if total != 1 }} found</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('buyers.new') }}">+ Add Buyer</a>
+</div>
+
+<div class="card">
+  <!-- Toolbar -->
+  <div class="card-header">
+    <form method="GET" class="toolbar" style="width:100%;margin:0;padding:0;border:none;background:none;">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ search }}" placeholder="Search by name, contact or location…" />
+      </div>
+      <button type="submit" class="btn btn-outline btn-sm">Search</button>
+      {% if search %}
+        <a class="btn btn-outline btn-sm" href="{{ url_for('buyers.index') }}">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    {% if buyers %}
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="name"><a href="#">Name</a></th>
+          <th>Contact</th>
+          <th data-sort="location"><a href="#">Location</a></th>
+          <th data-sort="created_at"><a href="#">Joined</a></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in buyers %}
+        <tr>
+          <td><a href="{{ url_for('buyers.view', id=b._id) }}" style="font-weight:600">{{ b.name }}</a></td>
+          <td>{{ b.contact }}</td>
+          <td><span class="badge badge-gray">{{ b.location }}</span></td>
+          <td>{{ fmt_date(b.created_at) }}</td>
+          <td class="td-actions">
+            <a class="btn btn-xs btn-outline" href="{{ url_for('buyers.view', id=b._id) }}">View</a>
+            <a class="btn btn-xs btn-primary" href="{{ url_for('buyers.edit', id=b._id) }}">Edit</a>
+            <form id="del-{{ b._id }}" method="POST" action="{{ url_for('buyers.delete', id=b._id) }}" style="display:none"></form>
+            <button type="button" class="btn btn-xs btn-danger"
+              onclick="openDeleteModal('del-{{ b._id }}','{{ b.name }}')">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🛒</div>
+      <h3>No buyers found</h3>
+      <p>{% if search %}Try a different search term or <a href="{{ url_for('buyers.index') }}">clear the filter</a>.{% else %}<a href="{{ url_for('buyers.new') }}">Add the first buyer</a>.{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  {{ pagination_widget(pagination, 'buyers.index', search, sort) }}
+</div>
+
+{{ delete_modal() }}
+{% endblock %}

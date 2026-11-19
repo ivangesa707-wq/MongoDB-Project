@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% from "macros.html" import fmt_date, fmt_datetime, type_badge, delete_modal %}
+
+{% block title %}{{ farmer.name }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('farmers.index') }}">Farmers</a> / {{ farmer.name }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>🧑‍🌾 {{ farmer.name }}</h1>
+    <p class="subtitle">Farmer Profile</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-primary" href="{{ url_for('farmers.edit', id=farmer._id) }}">✏️ Edit</a>
+    <form id="del-form" method="POST" action="{{ url_for('farmers.delete', id=farmer._id) }}" style="display:none"></form>
+    <button type="button" class="btn btn-danger" onclick="openDeleteModal('del-form','{{ farmer.name }}')">🗑 Delete</button>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+  <div class="card-header">Profile Details</div>
+  <div class="card-body">
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Full Name</div><div class="detail-value">{{ farmer.name }}</div></div>
+      <div class="detail-item"><div class="detail-label">Contact</div><div class="detail-value">{{ farmer.contact }}</div></div>
+      <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">{{ farmer.location }}</div></div>
+      <div class="detail-item"><div class="detail-label">Date Joined</div><div class="detail-value">{{ fmt_datetime(farmer.created_at) }}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-header">Price Listings
+      <a class="btn btn-sm btn-outline" href="{{ url_for('price_listings.index') }}">All Listings</a>
+    </div>
+    <div class="table-wrap">
+      {% if linked_prices %}
+      <table>
+        <thead><tr><th>Product</th><th>Price</th><th>Unit</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for p in linked_prices %}
+          <tr>
+            <td><a href="{{ url_for('price_listings.view', id=p._id) }}">{{ p.product }}</a></td>
+            <td class="price-value">UGX {{ "{:,.0f}".format(p.price) }}</td>
+            <td><span class="badge badge-gray">{{ p.unit }}</span></td>
+            <td>{{ fmt_date(p.listing_date) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state-icon">💰</div><h3>No listings</h3></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Recent Transactions
+      <a class="btn btn-sm btn-outline" href="{{ url_for('records.index') }}">All Records</a>
+    </div>
+    <div class="table-wrap">
+      {% if linked_records %}
+      <table>
+        <thead><tr><th>Type</th><th>Product</th><th>Total</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for r in linked_records %}
+          <tr>
+            <td>{{ type_badge(r.transaction_type) }}</td>
+            <td><a href="{{ url_for('records.view', id=r._id) }}">{{ r.product }}</a></td>
+            <td class="price-value">UGX {{ "{:,.0f}".format(r.price * r.quantity) }}</td>
+            <td>{{ fmt_date(r.date) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state-icon">📋</div><h3>No transactions</h3></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{{ delete_modal() }}
+{% endblock %}

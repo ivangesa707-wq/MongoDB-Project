@@ -1,0 +1,88 @@
+{# ── Reusable Jinja2 macros ── #}
+
+{% macro pagination_widget(pagination, endpoint, search='', sort='', extra={}) %}
+{% if pagination.pages > 1 %}
+<div class="pagination">
+  <span class="pagination-info">
+    Showing {{ ((pagination.page-1)*pagination.per_page)+1 }}–{{ [pagination.page*pagination.per_page, pagination.total]|min }}
+    of {{ pagination.total }} result{{ 's' if pagination.total != 1 }}
+  </span>
+  <div class="pagination-pages">
+    {% if pagination.has_prev %}
+      <a class="page-btn" href="{{ url_for(endpoint, page=pagination.prev_num, q=search, sort=sort, **extra) }}">‹</a>
+    {% else %}
+      <span class="page-btn disabled">‹</span>
+    {% endif %}
+    {% for page in pagination.iter_pages() %}
+      {% if page %}
+        <a class="page-btn {{ 'active' if page == pagination.page }}"
+           href="{{ url_for(endpoint, page=page, q=search, sort=sort, **extra) }}">{{ page }}</a>
+      {% else %}
+        <span class="page-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+      <a class="page-btn" href="{{ url_for(endpoint, page=pagination.next_num, q=search, sort=sort, **extra) }}">›</a>
+    {% else %}
+      <span class="page-btn disabled">›</span>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+
+{% macro search_bar(action, search, placeholder='Search…') %}
+<form method="GET" action="{{ action }}" class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" name="q" value="{{ search }}" placeholder="{{ placeholder }}" />
+</form>
+{% endmacro %}
+
+
+{% macro sort_link(label, field, current_sort) %}
+{% set is_asc  = current_sort == field %}
+{% set is_desc = current_sort == '-' + field %}
+<a href="?{% if is_asc %}sort=-{{ field }}{% else %}sort={{ field }}{% endif %}&q={{ request.args.get('q','') }}">
+  {{ label }}{% if is_asc %} ▲{% elif is_desc %} ▼{% endif %}
+</a>
+{% endmacro %}
+
+
+{% macro delete_modal() %}
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal">
+    <h3>⚠️ Confirm Delete</h3>
+    <p>Are you sure you want to delete <strong id="deleteItemName"></strong>? This action cannot be undone.</p>
+    <form id="deleteForm" method="POST">
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro fmt_date(dt) %}
+  {%- if dt %}{{ dt.strftime('%d %b %Y') if dt.strftime is defined else dt }}{% else %}—{% endif -%}
+{% endmacro %}
+
+
+{% macro fmt_datetime(dt) %}
+  {%- if dt %}{{ dt.strftime('%d %b %Y, %H:%M') if dt.strftime is defined else dt }}{% else %}—{% endif -%}
+{% endmacro %}
+
+
+{% macro type_badge(tx_type) %}
+{% set cls = {
+  'Sale': 'type-sale',
+  'Purchase': 'type-purchase',
+  'Transfer': 'type-transfer',
+  'Return': 'type-return',
+  'Inspection': 'type-inspection',
+  'Other': 'type-other'
+} %}
+<span class="badge {{ cls.get(tx_type, 'badge-gray') }}">{{ tx_type or '—' }}</span>
+{% endmacro %}

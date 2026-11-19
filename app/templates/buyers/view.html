@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "macros.html" import fmt_date, fmt_datetime, type_badge %}
+
+{% block title %}{{ buyer.name }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('buyers.index') }}">Buyers</a> /
+  {{ buyer.name }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>🛒 {{ buyer.name }}</h1>
+    <p class="subtitle">Buyer Profile</p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-primary" href="{{ url_for('buyers.edit', id=buyer._id) }}">✏️ Edit</a>
+    <form id="del-form" method="POST" action="{{ url_for('buyers.delete', id=buyer._id) }}" style="display:none"></form>
+    <button type="button" class="btn btn-danger"
+      onclick="openDeleteModal('del-form','{{ buyer.name }}')">🗑 Delete</button>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+  <div class="card-header">Profile Details</div>
+  <div class="card-body">
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Full Name</div>
+        <div class="detail-value">{{ buyer.name }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Contact</div>
+        <div class="detail-value">{{ buyer.contact }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Location</div>
+        <div class="detail-value">{{ buyer.location }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Date Joined</div>
+        <div class="detail-value">{{ fmt_datetime(buyer.created_at) }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Linked Transactions -->
+<div class="card">
+  <div class="card-header">
+    Recent Transactions
+    <a class="btn btn-sm btn-outline" href="{{ url_for('records.index') }}">All Records</a>
+  </div>
+  <div class="table-wrap">
+    {% if linked_records %}
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Product</th><th>Qty</th><th>Price</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for r in linked_records %}
+        <tr>
+          <td>{{ type_badge(r.transaction_type) }}</td>
+          <td>{{ r.product }}</td>
+          <td>{{ r.quantity }}</td>
+          <td class="price-value">UGX {{ "{:,.0f}".format(r.price) }}</td>
+          <td>{{ fmt_date(r.date) }}</td>
+          <td><a class="btn btn-xs btn-outline" href="{{ url_for('records.view', id=r._id) }}">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <h3>No transactions yet</h3>
+      <p><a href="{{ url_for('records.new') }}">Add a record</a> linked to this buyer.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% from "macros.html" import delete_modal %}
+{{ delete_modal() }}
+{% endblock %}

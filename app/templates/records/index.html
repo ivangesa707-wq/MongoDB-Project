@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "macros.html" import pagination_widget, delete_modal, fmt_date, type_badge %}
+
+{% block title %}Records{% endblock %}
+{% block breadcrumb %}<a href="{{ url_for('main.index') }}">Home</a> / Records{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>📋 Records</h1>
+    <p class="subtitle">{{ total }} record{{ 's' if total != 1 }} found</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('records.new') }}">+ Add Record</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="GET" class="toolbar" style="width:100%;margin:0;padding:0;border:none;background:none;flex-wrap:wrap;">
+      <div class="search-wrap" style="min-width:160px">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ search }}" placeholder="Search product or type…" />
+      </div>
+      <select class="form-control" name="type" style="width:auto;padding:8px 10px">
+        <option value="">All Types</option>
+        {% for t in transaction_types %}
+        <option value="{{ t }}" {{ 'selected' if filter_type == t }}>{{ t }}</option>
+        {% endfor %}
+      </select>
+      <select class="form-control" name="market" style="width:auto;padding:8px 10px">
+        <option value="">All Markets</option>
+        {% for m in markets %}
+        <option value="{{ m._id }}" {{ 'selected' if filter_market == m._id|string }}>{{ m.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-outline btn-sm">Filter</button>
+      {% if search or filter_type or filter_market %}
+        <a class="btn btn-outline btn-sm" href="{{ url_for('records.index') }}">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    {% if records %}
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="transaction_type"><a href="#">Type</a></th>
+          <th data-sort="product"><a href="#">Product</a></th>
+          <th>Buyer</th>
+          <th>Farmer</th>
+          <th data-sort="quantity"><a href="#">Qty</a></th>
+          <th data-sort="price"><a href="#">Price</a></th>
+          <th>Total</th>
+          <th data-sort="date"><a href="#">Date</a></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ type_badge(r.transaction_type) }}</td>
+          <td><a href="{{ url_for('records.view', id=r._id) }}" style="font-weight:600">{{ r.product }}</a></td>
+          <td>{{ r.get('buyer_name', '—') }}</td>
+          <td>{{ r.get('farmer_name', '—') }}</td>
+          <td>{{ r.quantity }}</td>
+          <td>UGX {{ "{:,.0f}".format(r.price) }}</td>
+          <td class="price-value">UGX {{ "{:,.0f}".format(r.price * r.quantity) }}</td>
+          <td>{{ fmt_date(r.date) }}</td>
+          <td class="td-actions">
+            <a class="btn btn-xs btn-outline" href="{{ url_for('records.view', id=r._id) }}">View</a>
+            <a class="btn btn-xs btn-primary" href="{{ url_for('records.edit', id=r._id) }}">Edit</a>
+            <form id="del-{{ r._id }}" method="POST" action="{{ url_for('records.delete', id=r._id) }}" style="display:none"></form>
+            <button type="button" class="btn btn-xs btn-danger"
+              onclick="openDeleteModal('del-{{ r._id }}','this record')">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <h3>No records found</h3>
+      <p>{% if search or filter_type or filter_market %}<a href="{{ url_for('records.index') }}">Clear filters</a>{% else %}<a href="{{ url_for('records.new') }}">Add the first record</a>{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+  {{ pagination_widget(pagination, 'records.index', search, sort, {'type': filter_type, 'market': filter_market}) }}
+</div>
+{{ delete_modal() }}
+{% endblock %}

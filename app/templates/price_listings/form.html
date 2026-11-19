@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'New Price Listing' if action == 'new' else 'Edit Listing' }}{% endblock %}
+{% block breadcrumb %}
+  <a href="{{ url_for('main.index') }}">Home</a> /
+  <a href="{{ url_for('price_listings.index') }}">Price Listings</a> /
+  {{ 'New' if action == 'new' else 'Edit' }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ '💰 New Price Listing' if action == 'new' else '✏️ Edit Price Listing' }}</h1>
+</div>
+
+<div class="card form-card">
+  <div class="card-body">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Product / Crop <span class="required">*</span></label>
+        <input class="form-control" type="text" name="product"
+               value="{{ data.get('product', '') }}" placeholder="e.g. Maize, Tomatoes, Beans" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Market <span class="required">*</span></label>
+          <select class="form-control" name="market_id" required>
+            <option value="">— Select market —</option>
+            {% for m in markets %}
+            <option value="{{ m._id }}" {{ 'selected' if data.get('market_id') == m._id|string }}>{{ m.name }}</option>
+            {% endfor %}
+          </select>
+          {% if not markets %}
+          <span class="form-hint">⚠ <a href="{{ url_for('markets.new') }}">Add a market first</a></span>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Farmer (optional)</label>
+          <select class="form-control" name="farmer_id">
+            <option value="">— Select farmer —</option>
+            {% for f in farmers %}
+            <option value="{{ f._id }}" {{ 'selected' if data.get('farmer_id') == f._id|string }}>{{ f.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Price (UGX) <span class="required">*</span></label>
+          <input class="form-control" type="number" name="price" step="0.01" min="0"
+                 value="{{ data.get('price', '') }}" placeholder="e.g. 2500" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit <span class="required">*</span></label>
+          <input class="form-control" type="text" name="unit"
+                 value="{{ data.get('unit', '') }}" placeholder="e.g. kg, bag (100kg), crate" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Listing Date <span class="required">*</span></label>
+        <input class="form-control" type="date" name="listing_date"
+               value="{{ data.get('listing_date', '') }}" required />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {{ 'Save Listing' if action == 'new' else 'Update Listing' }}
+        </button>
+        <a class="btn btn-outline" href="{{ url_for('price_listings.index') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

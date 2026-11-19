@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from "macros.html" import fmt_date, fmt_datetime, type_badge %}
+
+{% block title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Market Dashboard</h1>
+    <p class="subtitle">Overview of the Gesaivan market management system</p>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <a class="stat-card stat-card-link" href="{{ url_for('buyers.index') }}">
+    <div class="stat-card-icon">🛒</div>
+    <div class="stat-card-value">{{ stats.buyers }}</div>
+    <div class="stat-card-label">Buyers</div>
+  </a>
+  <a class="stat-card stat-card-link" href="{{ url_for('farmers.index') }}">
+    <div class="stat-card-icon">🧑‍🌾</div>
+    <div class="stat-card-value">{{ stats.farmers }}</div>
+    <div class="stat-card-label">Farmers</div>
+  </a>
+  <a class="stat-card stat-card-link" href="{{ url_for('markets.index') }}">
+    <div class="stat-card-icon">🏪</div>
+    <div class="stat-card-value">{{ stats.markets }}</div>
+    <div class="stat-card-label">Markets</div>
+  </a>
+  <a class="stat-card stat-card-link" href="{{ url_for('price_listings.index') }}">
+    <div class="stat-card-icon">💰</div>
+    <div class="stat-card-value">{{ stats.price_listings }}</div>
+    <div class="stat-card-label">Price Listings</div>
+  </a>
+  <a class="stat-card stat-card-link" href="{{ url_for('records.index') }}">
+    <div class="stat-card-icon">📋</div>
+    <div class="stat-card-value">{{ stats.records }}</div>
+    <div class="stat-card-label">Records</div>
+  </a>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Recent Price Listings -->
+  <div class="card">
+    <div class="card-header">
+      💰 Recent Price Listings
+      <a class="btn btn-sm btn-outline" href="{{ url_for('price_listings.index') }}">View all</a>
+    </div>
+    <div class="table-wrap">
+      {% if recent_prices %}
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Unit</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in recent_prices %}
+          <tr>
+            <td><a href="{{ url_for('price_listings.view', id=p._id) }}">{{ p.product }}</a></td>
+            <td class="price-value">UGX {{ "{:,.0f}".format(p.price) }}</td>
+            <td><span class="badge badge-gray">{{ p.unit }}</span></td>
+            <td>{{ fmt_date(p.listing_date) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">💰</div>
+        <h3>No price listings yet</h3>
+        <p><a href="{{ url_for('price_listings.new') }}">Add the first listing</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Records -->
+  <div class="card">
+    <div class="card-header">
+      📋 Recent Records
+      <a class="btn btn-sm btn-outline" href="{{ url_for('records.index') }}">View all</a>
+    </div>
+    <div class="table-wrap">
+      {% if recent_records %}
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Product</th>
+            <th>Total</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recent_records %}
+          <tr>
+            <td>{{ type_badge(r.transaction_type) }}</td>
+            <td><a href="{{ url_for('records.view', id=r._id) }}">{{ r.product }}</a></td>
+            <td class="price-value">UGX {{ "{:,.0f}".format(r.price * r.quantity) }}</td>
+            <td>{{ fmt_date(r.date) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <h3>No records yet</h3>
+        <p><a href="{{ url_for('records.new') }}">Add the first record</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

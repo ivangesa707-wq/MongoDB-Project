@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Gesaivan Market{% endblock %} — Market Management System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ── Sidebar Navigation ─────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-logo">🌾</span>
+    <span class="sidebar-title">Gesaivan</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('main.index') }}"
+       class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}">
+      <span class="nav-icon">📊</span> Dashboard
+    </a>
+    <a href="{{ url_for('buyers.index') }}"
+       class="nav-item {% if request.blueprint == 'buyers' %}active{% endif %}">
+      <span class="nav-icon">🛒</span> Buyers
+    </a>
+    <a href="{{ url_for('farmers.index') }}"
+       class="nav-item {% if request.blueprint == 'farmers' %}active{% endif %}">
+      <span class="nav-icon">🧑‍🌾</span> Farmers
+    </a>
+    <a href="{{ url_for('markets.index') }}"
+       class="nav-item {% if request.blueprint == 'markets' %}active{% endif %}">
+      <span class="nav-icon">🏪</span> Markets
+    </a>
+    <a href="{{ url_for('price_listings.index') }}"
+       class="nav-item {% if request.blueprint == 'price_listings' %}active{% endif %}">
+      <span class="nav-icon">💰</span> Price Listings
+    </a>
+    <a href="{{ url_for('records.index') }}"
+       class="nav-item {% if request.blueprint == 'records' %}active{% endif %}">
+      <span class="nav-icon">📋</span> Records
+    </a>
+  </nav>
+</aside>
+
+<!-- ── Main Content ───────────────────────────────────────────────────── -->
+<div class="main-wrapper">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div class="topbar-breadcrumb">{% block breadcrumb %}{% endblock %}</div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="topbar-clock"></span>
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <span>{{ message }}</span>
+          <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <!-- Page content -->
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Gesaivan Market Management System</p>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
